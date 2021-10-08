@@ -464,14 +464,16 @@ MonoBehaviour:
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
+  isOnGround: 0
   playerRB: {fileID: 0}
   cam: {fileID: 0}
   speedFactor: 50
+  maxSpeed: 50
   turnSmoothTime: 0.2
   jumpForce: 5
   brakeFactor: 10
-  isOnGround: 0
   distanceToGround: 0
+  stopSpeedThreshold: 5
 --- !u!65 &2924786752806451302
 BoxCollider:
   m_ObjectHideFlags: 0

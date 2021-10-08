@@ -10,16 +10,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] InputAction brake;
     [SerializeField] InputAction jump;
     [SerializeField] InputAction fire;
+    [SerializeField] bool isOnGround;
+
 
     public Rigidbody playerRB;
     public Transform cam;
     public float speedFactor;
+    public float maxSpeed;
     public float turnSmoothTime;
     float turnSmoothVelocity;
     public float jumpForce;
     public float brakeFactor;
-    [SerializeField] bool isOnGround;
     public float distanceToGround;
+    public float stopSpeedThreshold;
     float groundDetectionTolerance = 0.1f;
 
     //TODO: COMMENT EVERYTHINGGGG
@@ -57,7 +60,19 @@ public class PlayerMovement : MonoBehaviour
     private void ProcessBrake()
     {
         float brakeInput = brake.ReadValue<float>();
-        playerRB.velocity += -playerRB.velocity * brakeInput * brakeFactor * Time.deltaTime; //TODO: Fine tune this
+
+        if (brakeInput > 0.5f && IsGrounded())
+        {
+            if (playerRB.velocity.magnitude > stopSpeedThreshold)
+            {
+                playerRB.velocity += -playerRB.velocity * brakeInput * brakeFactor * Time.deltaTime; //TODO: Fine tune this 
+            }
+            else
+            {
+                playerRB.velocity = Vector3.zero;
+            }
+        }
+
     }
 
     void Update()
@@ -75,6 +90,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
+    // Takes in player input to influnce lateral movement. Player prefab will look ahead and accelerate in the direction of the camera
     void ProcessMovement()
     {
         float xDir = movement.ReadValue<Vector2>().normalized.x;
@@ -85,9 +101,10 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
         Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-        if (IsGrounded()) playerRB.AddForce(moveDirection * speedFactor * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        if (IsGrounded() && playerRB.velocity.magnitude < maxSpeed) playerRB.AddForce(moveDirection * speedFactor * Time.fixedDeltaTime, ForceMode.VelocityChange);
     }
 
+    // Performs a check to see if the player BoxCollider is touching the ground via Raycast
     bool IsGrounded()
     {
         return Physics.Raycast(transform.position, -Vector3.up, distanceToGround + groundDetectionTolerance);
