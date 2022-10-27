@@ -878,6 +878,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 2924786752806451320, guid: 511c71084facaed4abd815aaa566f66d, type: 3}
+      propertyPath: brakeFactor
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2924786752806451320, guid: 511c71084facaed4abd815aaa566f66d, type: 3}
       propertyPath: speedFactor
       value: 50
       objectReference: {fileID: 0}

@@ -9,7 +9,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] InputAction movement;
     [SerializeField] InputAction brake;
     [SerializeField] InputAction jump;
+    [SerializeField] bool isJumping;
+    [SerializeField] bool isBraking;
     [SerializeField] InputAction fire;
+    [SerializeField] bool isFiring;
     [SerializeField] bool isOnGround;
 
 
@@ -20,13 +23,13 @@ public class PlayerMovement : MonoBehaviour
     public float turnSmoothTime;
     float turnSmoothVelocity;
     public float jumpForce;
+    public float brakeValue;
     public float brakeFactor;
     public float distanceToGround;
     public float stopSpeedThreshold;
     float groundDetectionTolerance = 0.1f;
 
-    //TODO: COMMENT EVERYTHINGGGG
-
+    // 
     void OnEnable()
     {
         movement.Enable();
@@ -50,43 +53,59 @@ public class PlayerMovement : MonoBehaviour
         distanceToGround = GetComponent<BoxCollider>().bounds.extents.y;
     }
 
+    void Update()
+    {
+        ProcessInput();
+        isOnGround = IsGrounded();
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
         ProcessMovement();
-
+        ProcessJump();
+        ProcessBrake();
     }
 
+    // Check for inputs using new Input System
+    void ProcessInput()
+    {
+        if (jump.triggered && IsGrounded()) { isJumping = true; }
+        if (fire.triggered) { isFiring = true; }
+        brakeValue = brake.ReadValue<float>();
+        if (brakeValue > 0.5f) { isBraking = true; } 
+    }
+
+    
+    // Brake if grounded and not jumping
     private void ProcessBrake()
     {
-        float brakeInput = brake.ReadValue<float>();
 
-        if (brakeInput > 0.5f && IsGrounded())
+        if (isBraking && IsGrounded() && !isJumping) 
         {
-            if (playerRB.velocity.magnitude > stopSpeedThreshold)
+            if (playerRB.velocity.magnitude > stopSpeedThreshold) // braking while moving
             {
-                playerRB.velocity += -playerRB.velocity * brakeInput * brakeFactor * Time.deltaTime; //TODO: Fine tune this 
+                playerRB.AddForce(-brakeValue * brakeFactor * playerRB.velocity);
             }
-            else
+            else // if below a certain speed
             {
-                playerRB.velocity = Vector3.zero;
+                playerRB.Sleep();
             }
         }
 
-    }
-
-    void Update()
-    {
-        ProcessJump();
-        ProcessBrake();
-        isOnGround = IsGrounded();
+        
+        isBraking = false;
     }
 
     // jump triggers when button is pressed
     void ProcessJump()
     {
-        if (jump.triggered)
+        if (isJumping) 
+        {
+            isBraking = false;
             playerRB.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            isJumping = false;
+        } 
     }
 
 
@@ -101,7 +120,10 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
         Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-        if (IsGrounded() && playerRB.velocity.magnitude < maxSpeed) playerRB.AddForce(moveDirection * speedFactor * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        if (IsGrounded() && playerRB.velocity.magnitude < maxSpeed && !isBraking) 
+        {
+            playerRB.AddForce(moveDirection * speedFactor * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        }
     }
 
     // Performs a check to see if the player BoxCollider is touching the ground via Raycast

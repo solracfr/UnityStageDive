@@ -456,6 +456,8 @@ MonoBehaviour:
       m_Groups: 
       m_Action: Jump
       m_Flags: 0
+  isJumping: 0
+  isBraking: 0
   fire:
     m_Name: Fire
     m_Type: 0
@@ -464,13 +466,15 @@ MonoBehaviour:
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
+  isFiring: 0
   isOnGround: 0
-  playerRB: {fileID: 0}
+  playerRB: {fileID: 2924786752806451321}
   cam: {fileID: 0}
   speedFactor: 50
   maxSpeed: 50
   turnSmoothTime: 0.2
-  jumpForce: 5
+  jumpForce: 9
+  brakeValue: 0
   brakeFactor: 10
   distanceToGround: 0
   stopSpeedThreshold: 5
