@@ -1,2 +1,2 @@
 # UnityStageDive
-Bumper Car game
+Bumper Car game making extensive use of RigidBody physics for sliding, braking, & jumping
